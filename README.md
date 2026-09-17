@@ -7,7 +7,7 @@ git clone https://github.com/woozer/hello-world.git
 cd hello-world
 ```
 
-Deze applicatie hoort bij [ci-components](https://github.com/woozer/ci-components). De onderstaande build- en testcommando's werken vanuit deze map; de GitLab-pipeline en deployment vereisen de [lokale demo-inrichting](https://github.com/woozer/ci-components/blob/main/installation.md).
+Deze applicatie gebruikt [java-service uit ci-pipelines](https://github.com/woozer/ci-pipelines), met vaste bouwblokken uit [ci-components](https://github.com/woozer/ci-components). De onderstaande build- en testcommando's werken vanuit deze map; de GitLab-pipeline en deployment vereisen de [lokale demo-inrichting](https://github.com/woozer/ci-components/blob/main/installation.md).
 
 Een Spring Boot-backend met Java 25 en meerdere Maven-modules, plus een aparte Angular 22-UI via Nginx. `GET /hello` geeft `hello world` terug; `GET /api/animals` geeft zes willekeurig gekozen dieren terug. De gedeployde UI staat op [localhost:8090](http://localhost:8090).
 
@@ -41,7 +41,7 @@ Formulier en pipeline gebruiken beide componentversie `1.0.0`. De YAML-anchor `c
 
 GitLab regelt jobs, afhankelijkheden en locks. De keuzetermijn van tien seconden en automatische patchversie zijn organisatiebeleid. In deze demo met één gebruiker mag de auteur na geslaagde MR-controles zelf mergen. In de echte organisatie beoordeelt een tweede persoon wijzigingen vóór een merge naar een protected branch. Een handmatige releaseknop is geen goedkeuring door een ander.
 
-Maven-packages gaan naar GitLab; images en charts naar lokale Artifactory. Ook een release wordt in dev gevalideerd. Toekomstige productiedeployment via Argo CD moet de bestaande release-image-digests gebruiken zonder opnieuw te bouwen. Zie [pipelinekeuzes](https://github.com/woozer/ci-components/blob/main/docs/pipeline-options.md) en [releasebeleid](https://github.com/woozer/ci-components/blob/main/docs/releases.md).
+Maven-packages gaan naar GitLab; images en charts naar lokale Artifactory. Ook een release wordt in dev gevalideerd. Toekomstige productiedeployment via Argo CD moet de bestaande release-image-digests gebruiken zonder opnieuw te bouwen. Zie [pipelinekeuzes](https://github.com/woozer/ci-pipelines/blob/main/docs/pipeline-options.md) en [releasebeleid](https://github.com/woozer/ci-pipelines/blob/main/docs/releases.md).
 
 Health-endpoints:
 
@@ -52,7 +52,7 @@ Health-endpoints:
 
 Spring Boot Actuator biedt ook `/actuator/health` en `/actuator/health/liveness` op de applicatiepoort. Standaard is alleen health beschikbaar. Kubernetes controleert iedere tien seconden; een container die nog niet gereed is, kan eerder opnieuw worden gecontroleerd. Helm wacht op alle gewenste replica's. Beide gedeployde integratiesuites wachten op beide Helm-jobs. Een readiness-timeout laat deployment falen en blokkeert de tests. Tests tijdens de build hebben geen cluster nodig.
 
-De optionele centrale input `deployment-timeout` is standaard `5m` per deployable. Geef deze alleen mee voor een afwijking, bijvoorbeeld `deployment-timeout: 8m`. De instelling geldt ook voor releasedeployments. Een Helm-rollback kan extra tijd kosten; zie [pipelineopties](https://github.com/woozer/ci-components/blob/main/docs/pipeline-options.md). UI-health controleert Nginx; browserscenario's controleren of de UI de backend kan lezen.
+De optionele centrale input `deployment-timeout` is standaard `5m` per deployable. Geef deze alleen mee voor een afwijking, bijvoorbeeld `deployment-timeout: 8m`. De instelling geldt ook voor releasedeployments. Een Helm-rollback kan extra tijd kosten; zie [pipelineopties](https://github.com/woozer/ci-pipelines/blob/main/docs/pipeline-options.md). UI-health controleert Nginx; browserscenario's controleren of de UI de backend kan lezen.
 
 Voor zelfstandige Jib-builds en lokale Helm-commando's: [ontwikkelhandleiding](docs/development.md).
 
@@ -79,4 +79,4 @@ Dit Maven-profiel installeert en cachet de Chromium-versie die bij Playwright ho
 
 `./mvnw verify` voert daarnaast de Cucumber-integratietests uit en start daarvoor zelf de backend. In CI doet `maven-build` de build met unittests; de aparte Cucumber-stap gebruikt `-DskipUnitTests=true` om de unittests niet opnieuw uit te voeren. Browsertests blijven apart en vereisen een draaiende UI.
 
-De projectconfiguratie in `.gitlab-ci.yml` legt met `release-line: "0.1"` de major en minor vast. De centrale releasejob kiest de volgende vrije patch binnen die reeks. Wijzig de reeks via een merge request; de releasejob schrijft geen versiecommit terug. Zie de [gedeelde releasestrategie](https://github.com/woozer/ci-components/blob/main/docs/releases.md).
+De projectconfiguratie in `.gitlab-ci.yml` legt met `release-line: "0.1"` de major en minor vast. De centrale releasejob kiest de volgende vrije patch binnen die reeks. Wijzig de reeks via een merge request; de releasejob schrijft geen versiecommit terug. Zie de [gedeelde releasestrategie](https://github.com/woozer/ci-pipelines/blob/main/docs/releases.md).
